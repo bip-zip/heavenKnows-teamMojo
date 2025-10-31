@@ -45,6 +45,12 @@ class UserRegisterView(CreateView):
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('accounts:login')  # redirect after successful registration
 
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, 'Registration successful! Please log in.')   
+        return super().form_valid(form)
+    
+
 
 class ProfileView(View):
     def get(self, request, *args, **kwargs):

@@ -4,9 +4,51 @@ from .models import CustomUser
 from django.contrib.auth import authenticate
 
 class CustomUserCreationForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': 'First Name',
+        })
+    )
+    last_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': 'Last Name',
+        })
+    )
+    contact = forms.CharField(
+        max_length=15,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': '+977-9800000000',
+        })
+    )
+    email = forms.EmailField(
+        max_length=255,
+        widget=forms.EmailInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': 'you@example.com',
+        })
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': 'Password',
+        })
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring',
+            'placeholder': 'Confirm Password',
+        })
+    )
+
     class Meta:
         model = CustomUser
-        fields = ('first_name','last_name','contact','email')
+        fields = ('first_name', 'last_name', 'contact', 'email')
+
 
 
 
