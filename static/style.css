@@ -1,0 +1,78 @@
+/*  */
+
+* {
+    box-sizing: border-box;
+}
+
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom orange-red gradient */
+.gradient-btn {
+    background: linear-gradient(to right, #ea580c, #dc2626);
+}
+
+.gradient-btn:hover {
+    background: linear-gradient(to right, #c2410c, #b91c1c);
+}
+
+/* Active link indicator */
+.active-link {
+    background-color: #ea580c !important;
+    color: white !important;
+}
+
+
+/* Gradient background with glassmorphism */
+.footer-gradient {
+    background: linear-gradient(to bottom right,
+            rgba(154, 36, 0, 0.9),
+            /* orange-900/90 */
+            rgba(127, 29, 29, 0.9),
+            /* red-900/90 */
+            rgba(133, 77, 14, 0.9)
+            /* yellow-900/90 */
+        );
+}
+
+/* Social icon hover */
+.social-icon {
+    @apply w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center transition-all duration-300 hover:bg-white/30 hover:scale-110;
+}
+
+
+
+/* auth styling */
+
+/* Gradient blur background */
+.blur-bg {
+    background: linear-gradient(to bottom right, #f97316, #dc2626);
+    filter: blur(80px);
+    opacity: 0.2;
+}
+
+/* Glassmorphism card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Active tab */
+.tab-active {
+    background: linear-gradient(to right, #ea580c, #dc2626);
+}
+
+/* Input focus ring */
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-500 transition-all;
+}
+
+
+
+
+/*  */

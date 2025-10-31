@@ -9,8 +9,11 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('first_name','last_name','contact','email')
 
 
+
 class EmailAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={'autofocus': True}))
+    username = forms.EmailField(label="Email", widget=forms.EmailInput(attrs={'autofocus': True, 'class':'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring', 'placeholder':"Email Address"}))
+    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'class':'w-full pl-12 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus-ring', 'placeholder':'Password'}))
+    
 
     def clean(self):
         email = self.cleaned_data.get('username')

@@ -4,7 +4,6 @@ from .models import (
     Itinerary, ItineraryDay
 )
 
-
 # ---------- CATEGORY ADMIN ----------
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
