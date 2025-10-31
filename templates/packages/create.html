@@ -1,0 +1,762 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Package{% endblock title %}
+
+{% block styles %}
+<style>
+    .destination-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .destination-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .destination-card.selected {
+        border: 3px solid #3b82f6;
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    }
+    
+    .itinerary-day {
+        transition: all 0.3s ease;
+    }
+    
+    .itinerary-day:hover {
+        background-color: #f3f4f6;
+    }
+    
+    .step-indicator {
+        transition: all 0.3s ease;
+    }
+    
+    .step-indicator.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+    }
+    
+    .step-indicator.completed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Create Tour Package</h1>
+            <p class="text-gray-600">Design and publish your perfect tour package</p>
+        </div>
+        
+        <!-- Step Indicators -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between max-w-3xl mx-auto">
+                <div class="flex items-center">
+                    <div id="step-1" class="step-indicator active w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-blue-600">1</div>
+                    <span class="ml-3 font-medium text-gray-700">Basic Info</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+                <div class="flex items-center">
+                    <div id="step-2" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-300 text-gray-500">2</div>
+                    <span class="ml-3 font-medium text-gray-500">Destinations</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+                <div class="flex items-center">
+                    <div id="step-3" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-300 text-gray-500">3</div>
+                    <span class="ml-3 font-medium text-gray-500">Itinerary</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-300 mx-4"></div>
+                <div class="flex items-center">
+                    <div id="step-4" class="step-indicator w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-300 text-gray-500">4</div>
+                    <span class="ml-3 font-medium text-gray-500">Review</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-6 max-w-4xl mx-auto">
+                {% for message in messages %}
+                    <div class="{% if message.tags == 'error' %}bg-red-50 border-l-4 border-red-500 text-red-800{% else %}bg-green-50 border-l-4 border-green-500 text-green-800{% endif %} rounded-lg px-4 py-3 mb-3">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" id="packageForm">
+            {% csrf_token %}
+            
+            <!-- Step 1: Basic Information -->
+            <div id="step-content-1" class="step-content bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                    Basic Information
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Package Title <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Description <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Duration (Days) <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.duration_days }}
+                        {% if form.duration_days.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.duration_days.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Duration (Nights) <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.duration_nights }}
+                        {% if form.duration_nights.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.duration_nights.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Price per Person (NPR) <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.price_per_person }}
+                        {% if form.price_per_person.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.price_per_person.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Group Size (Min-Max) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            {{ form.group_size_min }}
+                            {{ form.group_size_max }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Available From
+                        </label>
+                        {{ form.available_from }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Available To
+                        </label>
+                        {{ form.available_to }}
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Cover Image <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.cover_image }}
+                        <div id="image-preview" class="mt-3 hidden">
+                            <img id="preview-img" class="w-full h-64 object-cover rounded-lg" />
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Inclusions <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.inclusions }}
+                        <p class="mt-1 text-xs text-gray-500">Enter one item per line</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Exclusions <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.exclusions }}
+                        <p class="mt-1 text-xs text-gray-500">Enter one item per line</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Status
+                        </label>
+                        {{ form.status }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Step 2: Select Destinations -->
+            <div id="step-content-2" class="step-content hidden bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-map-marked-alt text-blue-600 mr-2"></i>
+                    Select Destinations
+                </h2>
+                
+                <div class="mb-4">
+                    <input 
+                        type="text" 
+                        id="destination-search" 
+                        placeholder="Search destinations..." 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                
+                <div class="mb-4 flex flex-wrap gap-2" id="selected-destinations-badges">
+                    <!-- Selected destinations will appear here as badges -->
+                </div>
+                
+                {{ form.destinations }}
+                
+                <div id="destination-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {% for destination in all_destinations %}
+                        <div 
+                            class="destination-card border-2 border-gray-200 rounded-xl p-4 hover:border-blue-500"
+                            data-id="{{ destination.id }}"
+                            data-name="{{ destination.name }}"
+                            onclick="toggleDestination({{ destination.id }}, '{{ destination.name }}')"
+                        >
+                            <div class="flex items-start gap-3">
+                                <div class="flex-shrink-0">
+                                    {% if destination.cover_image %}
+                                        <img src="{{ destination.cover_image.url }}" class="w-20 h-20 rounded-lg object-cover" alt="{{ destination.name }}">
+                                    {% else %}
+                                        <div class="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                            <i class="fas fa-mountain text-white text-2xl"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="font-bold text-gray-800 truncate">{{ destination.name }}</h3>
+                                    <p class="text-sm text-gray-600">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        {{ destination.district }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        <i class="{{ destination.category.icon }} mr-1"></i>
+                                        {{ destination.category.name }}
+                                    </p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-2xl text-gray-300 selected-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Step 3: Build Itinerary -->
+            <div id="step-content-3" class="step-content hidden bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-route text-blue-600 mr-2"></i>
+                    Build Itinerary
+                </h2>
+                
+                <div class="mb-6 flex gap-3">
+                    <button type="button" onclick="addItineraryDay()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300">
+                        <i class="fas fa-plus mr-2"></i>Add Day
+                    </button>
+                    <button type="button" onclick="autoGenerateItinerary()" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition duration-300">
+                        <i class="fas fa-magic mr-2"></i>Auto Generate
+                    </button>
+                </div>
+                
+                <div id="itinerary-container" class="space-y-4">
+                    <!-- Itinerary days will be added here dynamically -->
+                </div>
+                
+                <input type="hidden" name="itinerary_json" id="itinerary-json">
+            </div>
+            
+            <!-- Step 4: Review -->
+            <div id="step-content-4" class="step-content hidden bg-white rounded-2xl shadow-xl p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
+                    Review Package
+                </h2>
+                
+                <div id="review-content" class="space-y-6">
+                    <!-- Review content will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center max-w-4xl mx-auto">
+                <button 
+                    type="button" 
+                    id="prevBtn" 
+                    onclick="changeStep(-1)"
+                    class="hidden px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition duration-300"
+                >
+                    <i class="fas fa-arrow-left mr-2"></i>Previous
+                </button>
+                
+                <button 
+                    type="button" 
+                    id="nextBtn" 
+                    onclick="changeStep(1)"
+                    class="ml-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300"
+                >
+                    Next<i class="fas fa-arrow-right ml-2"></i>
+                </button>
+                
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="hidden ml-auto px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition duration-300"
+                >
+                    <i class="fas fa-check mr-2"></i>Create Package
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    const totalSteps = 4;
+    let selectedDestinations = [];
+    let itineraryDays = [];
+    
+    // Image preview
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('image-preview').classList.remove('hidden');
+                document.getElementById('preview-img').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Step navigation
+    function changeStep(direction) {
+        // Validate current step
+        if (direction === 1 && !validateStep(currentStep)) {
+            return;
+        }
+        
+        // Update step
+        currentStep += direction;
+        
+        if (currentStep > totalSteps) {
+            currentStep = totalSteps;
+            return;
+        }
+        if (currentStep < 1) {
+            currentStep = 1;
+            return;
+        }
+        
+        showStep(currentStep);
+    }
+    
+    function showStep(step) {
+        // Hide all steps
+        document.querySelectorAll('.step-content').forEach(el => el.classList.add('hidden'));
+        
+        // Show current step
+        document.getElementById('step-content-' + step).classList.remove('hidden');
+        
+        // Update step indicators
+        for (let i = 1; i <= totalSteps; i++) {
+            const indicator = document.getElementById('step-' + i);
+            indicator.classList.remove('active', 'completed');
+            
+            if (i < step) {
+                indicator.classList.add('completed');
+            } else if (i === step) {
+                indicator.classList.add('active');
+            }
+        }
+        
+        // Update navigation buttons
+        document.getElementById('prevBtn').classList.toggle('hidden', step === 1);
+        document.getElementById('nextBtn').classList.toggle('hidden', step === totalSteps);
+        document.getElementById('submitBtn').classList.toggle('hidden', step !== totalSteps);
+        
+        // Special handling for review step
+        if (step === 4) {
+            populateReview();
+        }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function validateStep(step) {
+        if (step === 1) {
+            // Validate basic info
+            const title = document.getElementById('id_title').value;
+            const days = document.getElementById('id_duration_days').value;
+            const nights = document.getElementById('id_duration_nights').value;
+            const price = document.getElementById('id_price_per_person').value;
+            
+            if (!title || !days || !nights || !price) {
+                alert('Please fill all required fields in Basic Information');
+                return false;
+            }
+        } else if (step === 2) {
+            // Validate destinations
+            if (selectedDestinations.length === 0) {
+                alert('Please select at least one destination');
+                return false;
+            }
+        } else if (step === 3) {
+            // Validate itinerary
+            if (itineraryDays.length === 0) {
+                alert('Please add at least one day to the itinerary');
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Destination selection
+    function toggleDestination(id, name) {
+        const card = document.querySelector(`.destination-card[data-id="${id}"]`);
+        const select = document.getElementById('destination-select');
+        
+        if (selectedDestinations.includes(id)) {
+            // Deselect
+            selectedDestinations = selectedDestinations.filter(d => d !== id);
+            card.classList.remove('selected');
+            card.querySelector('.selected-icon').classList.remove('text-blue-600');
+            card.querySelector('.selected-icon').classList.add('text-gray-300');
+            
+            // Remove from select
+            Array.from(select.options).forEach(option => {
+                if (option.value == id) {
+                    option.selected = false;
+                }
+            });
+        } else {
+            // Select
+            selectedDestinations.push(id);
+            card.classList.add('selected');
+            card.querySelector('.selected-icon').classList.remove('text-gray-300');
+            card.querySelector('.selected-icon').classList.add('text-blue-600');
+            
+            // Add to select
+            Array.from(select.options).forEach(option => {
+                if (option.value == id) {
+                    option.selected = true;
+                }
+            });
+        }
+        
+        updateSelectedBadges();
+    }
+    
+    function updateSelectedBadges() {
+        const container = document.getElementById('selected-destinations-badges');
+        container.innerHTML = '';
+        
+        selectedDestinations.forEach(id => {
+            const card = document.querySelector(`.destination-card[data-id="${id}"]`);
+            const name = card.dataset.name;
+            
+            const badge = document.createElement('span');
+            badge.className = 'inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium';
+            badge.innerHTML = `
+                ${name}
+                <button type="button" onclick="toggleDestination(${id}, '${name}')" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(badge);
+        });
+    }
+    
+    // Destination search
+    document.getElementById('destination-search').addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.destination-card').forEach(card => {
+            const name = card.dataset.name.toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Itinerary management
+    function addItineraryDay() {
+        const dayNumber = itineraryDays.length + 1;
+        const dayData = {
+            day: dayNumber,
+            title: '',
+            description: '',
+            destination_id: null
+        };
+        itineraryDays.push(dayData);
+        renderItineraryDay(dayData);
+    }
+    
+    function renderItineraryDay(dayData) {
+        const container = document.getElementById('itinerary-container');
+        
+        // Build destination options
+        let destinationOptions = '<option value="">Select destination (optional)</option>';
+        selectedDestinations.forEach(id => {
+            const card = document.querySelector(`.destination-card[data-id="${id}"]`);
+            const name = card.dataset.name;
+            const selected = dayData.destination_id == id ? 'selected' : '';
+            destinationOptions += `<option value="${id}" ${selected}>${name}</option>`;
+        });
+        
+        const dayHTML = `
+            <div class="itinerary-day border-2 border-gray-200 rounded-xl p-6" data-day="${dayData.day}">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                            ${dayData.day}
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Day ${dayData.day}</h3>
+                    </div>
+                    <button type="button" onclick="removeItineraryDay(${dayData.day})" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                        <input 
+                            type="text" 
+                            class="itinerary-title w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            placeholder="e.g., Arrival in Kathmandu"
+                            value="${dayData.title}"
+                            onchange="updateItineraryDay(${dayData.day}, 'title', this.value)"
+                        />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea 
+                            class="itinerary-description w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            rows="3"
+                            placeholder="Describe the day's activities..."
+                            onchange="updateItineraryDay(${dayData.day}, 'description', this.value)"
+                        >${dayData.description}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Related Destination (Optional)</label>
+                        <select 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            onchange="updateItineraryDay(${dayData.day}, 'destination_id', this.value)"
+                        >
+                            ${destinationOptions}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', dayHTML);
+    }
+    
+    function updateItineraryDay(day, field, value) {
+        const dayIndex = itineraryDays.findIndex(d => d.day === day);
+        if (dayIndex !== -1) {
+            itineraryDays[dayIndex][field] = value;
+        }
+    }
+    
+    function removeItineraryDay(day) {
+        if (confirm('Are you sure you want to remove this day?')) {
+            itineraryDays = itineraryDays.filter(d => d.day !== day);
+            
+            // Renumber remaining days
+            itineraryDays.forEach((d, index) => {
+                d.day = index + 1;
+            });
+            
+            // Re-render
+            document.getElementById('itinerary-container').innerHTML = '';
+            itineraryDays.forEach(d => renderItineraryDay(d));
+        }
+    }
+    
+    function autoGenerateItinerary() {
+        if (selectedDestinations.length === 0) {
+            alert('Please select destinations first');
+            return;
+        }
+        
+        const days = parseInt(document.getElementById('id_duration_days').value) || selectedDestinations.length;
+        
+        if (confirm(`This will generate a ${days}-day itinerary. Continue?`)) {
+            itineraryDays = [];
+            document.getElementById('itinerary-container').innerHTML = '';
+            
+            for (let i = 1; i <= days; i++) {
+                const destinationIndex = (i - 1) % selectedDestinations.length;
+                const destinationId = selectedDestinations[destinationIndex];
+                const card = document.querySelector(`.destination-card[data-id="${destinationId}"]`);
+                const destinationName = card.dataset.name;
+                
+                const dayData = {
+                    day: i,
+                    title: i === 1 ? 'Arrival and Orientation' : i === days ? 'Departure' : `Explore ${destinationName}`,
+                    description: i === 1 ? 'Arrival, hotel check-in, and welcome briefing' : i === days ? 'Final breakfast and departure' : `Full day exploring ${destinationName} with guided tours and activities`,
+                    destination_id: destinationId
+                };
+                
+                itineraryDays.push(dayData);
+                renderItineraryDay(dayData);
+            }
+        }
+    }
+    
+    // Review and submit
+    function populateReview() {
+        const reviewContent = document.getElementById('review-content');
+        
+        // Get form values
+        const title = document.getElementById('id_title').value;
+        const description = document.getElementById('id_description').value;
+        const days = document.getElementById('id_duration_days').value;
+        const nights = document.getElementById('id_duration_nights').value;
+        const price = document.getElementById('id_price_per_person').value;
+        const groupMin = document.getElementById('id_group_size_min').value;
+        const groupMax = document.getElementById('id_group_size_max').value;
+        const inclusions = document.getElementById('id_inclusions').value;
+        const exclusions = document.getElementById('id_exclusions').value;
+        const status = document.getElementById('id_status').value;
+        
+        // Build destination names
+        let destinationNames = [];
+        selectedDestinations.forEach(id => {
+            const card = document.querySelector(`.destination-card[data-id="${id}"]`);
+            destinationNames.push(card.dataset.name);
+        });
+        
+        // Build inclusions/exclusions lists
+        const inclusionsList = inclusions.split('\n').filter(x => x.trim()).map(x => `<li class="flex items-start"><i class="fas fa-check text-green-600 mr-2 mt-1"></i><span>${x}</span></li>`).join('');
+        const exclusionsList = exclusions.split('\n').filter(x => x.trim()).map(x => `<li class="flex items-start"><i class="fas fa-times text-red-600 mr-2 mt-1"></i><span>${x}</span></li>`).join('');
+        
+        reviewContent.innerHTML = `
+            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 mb-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">${title}</h3>
+                <p class="text-gray-700">${description}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <i class="fas fa-calendar-days text-blue-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Duration</p>
+                    <p class="text-xl font-bold text-gray-800">${days}D / ${nights}N</p>
+                </div>
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <i class="fas fa-money-bill-wave text-green-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Price per Person</p>
+                    <p class="text-xl font-bold text-gray-800">NPR ${parseFloat(price).toLocaleString()}</p>
+                </div>
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-4">
+                    <i class="fas fa-users text-purple-600 text-2xl mb-2"></i>
+                    <p class="text-sm text-gray-600">Group Size</p>
+                    <p class="text-xl font-bold text-gray-800">${groupMin} - ${groupMax} people</p>
+                </div>
+            </div>
+            
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6">
+                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-map-marked-alt text-blue-600 mr-2"></i>
+                    Destinations (${selectedDestinations.length})
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    ${destinationNames.map(name => `<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">${name}</span>`).join('')}
+                </div>
+            </div>
+            
+            <div class="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6">
+                <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <i class="fas fa-route text-blue-600 mr-2"></i>
+                    Itinerary (${itineraryDays.length} days)
+                </h4>
+                <div class="space-y-3">
+                    ${itineraryDays.map(day => `
+                        <div class="border-l-4 border-blue-500 pl-4 py-2 bg-gray-50 rounded-r">
+                            <p class="font-bold text-gray-800">Day ${day.day}: ${day.title}</p>
+                            <p class="text-sm text-gray-600">${day.description}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-6">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        What's Included
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        ${inclusionsList}
+                    </ul>
+                </div>
+                <div class="bg-white border-2 border-gray-200 rounded-xl p-6">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                        What's Not Included
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        ${exclusionsList}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4">
+                <p class="text-sm text-gray-700">
+                    <i class="fas fa-info-circle text-yellow-600 mr-2"></i>
+                    <strong>Status:</strong> ${status === 'PUBLISHED' ? 'This package will be published immediately' : 'This package will be saved as draft'}
+                </p>
+            </div>
+        `;
+    }
+    
+    // Form submission
+    document.getElementById('packageForm').addEventListener('submit', function(e) {
+        // Save itinerary data to hidden field
+        document.getElementById('itinerary-json').value = JSON.stringify(itineraryDays);
+        
+        // Validate one more time
+        if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
+            e.preventDefault();
+            alert('Please complete all required steps');
+            return false;
+        }
+    });
+    
+    // Initialize
+    showStep(1);
+</script>
+{% endblock content %}

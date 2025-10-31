@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explore Destinations{% endblock title %}
+
+{% block styles %}
+<style>
+    .destination-card {
+        transition: all 0.3s ease;
+    }
+    
+    .destination-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .category-chip {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .category-chip:hover {
+        transform: translateY(-2px);
+    }
+    
+    .category-chip.active {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: transparent;
+    }
+    
+    .difficulty-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+    }
+    
+    .difficulty-easy { background-color: #d1fae5; color: #065f46; }
+    .difficulty-moderate { background-color: #fef3c7; color: #92400e; }
+    .difficulty-hard { background-color: #fed7aa; color: #9a3412; }
+    .difficulty-extreme { background-color: #fecaca; color: #991b1b; }
+</style>
+{% endblock styles %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-orange-600 via-red-400 to-orange-700 animate-gradient text-white py-20">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                Discover Nepal
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-50">
+                From the peaks of the Himalayas to ancient temples - explore unforgettable destinations
+            </p>
+            <div class="flex items-center justify-center space-x-4 text-sm mb-16">
+                <div class="flex items-center">
+                    <i class="fas fa-mountain text-2xl mr-2"></i>
+                    <span>{{ page_obj.paginator.count }} Destinations</span>
+                </div>
+                <span>•</span>
+                <div class="flex items-center">
+                    <i class="fas fa-compass text-2xl mr-2"></i>
+                    <span>Epic Adventures</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Decorative wave -->
+    <div class="absolute bottom-0 left-0 right-0">
+        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="white"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Category Chips -->
+<section class="py-8 bg-white border-b">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-lg font-semibold text-neutral-800 mb-4">Browse by Category</h3>
+            <div class="flex flex-wrap gap-3">
+                <!-- All Categories -->
+                <a href="{% url 'destinations:list' %}?{% if search_query %}search={{ search_query }}{% endif %}" 
+                   class="category-chip px-5 py-2.5 rounded-full border-2 border-neutral-300 text-neutral-700 font-medium hover:border-green-500 {% if not selected_category %}active{% endif %}">
+                    <i class="fas fa-globe mr-2"></i>All Destinations
+                </a>
+                
+                {% for category in categories %}
+                    <a href="?category={{ category.slug }}{% if search_query %}&search={{ search_query }}{% endif %}" 
+                       class="category-chip px-5 py-2.5 rounded-full border-2 border-neutral-300 text-neutral-700 font-medium hover:border-green-500 {% if selected_category == category.slug %}active{% endif %}">
+                        {% if category.icon %}
+                            <i class="{{ category.icon }} mr-2"></i>
+                        {% endif %}
+                        {{ category.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search and Filters -->
+<section class="py-8 bg-neutral-50">
+    <div class="container mx-auto px-4">
+        <form method="get" class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Search Input -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">
+                            <i class="fas fa-search mr-2 text-blue-600"></i>Search Destinations
+                        </label>
+                        <input 
+                            type="text" 
+                            name="search" 
+                            value="{{ search_query }}"
+                            placeholder="Search by name, location, description..." 
+                            class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                    </div>
+                    
+                    <!-- Difficulty Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">
+                            <i class="fas fa-chart-line mr-2 text-blue-600"></i>Difficulty
+                        </label>
+                        <select 
+                            name="difficulty" 
+                            class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            <option value="">All Levels</option>
+                            {% for value, label in difficulty_choices %}
+                                <option value="{{ value }}" {% if selected_difficulty == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <!-- District Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-700 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-blue-600"></i>District
+                        </label>
+                        <select 
+                            name="district" 
+                            class="w-full px-4 py-3 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                            <option value="">All Districts</option>
+                            {% for dist in districts %}
+                                <option value="{{ dist }}" {% if selected_district == dist %}selected{% endif %}>
+                                    {{ dist }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Hidden category field to maintain filter -->
+                {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                
+                <div class="flex gap-3 mt-4">
+                    <button 
+                        type="submit" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-300"
+                    >
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                    <a 
+                        href="{% url 'destinations:list' %}" 
+                        class="px-6 py-3 border-2 border-neutral-300 hover:border-neutral-400 text-neutral-700 font-semibold rounded-lg transition duration-300"
+                    >
+                        <i class="fas fa-redo mr-2"></i>Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Active Filters -->
+{% if search_query or selected_category or selected_difficulty or selected_district or selected_tag %}
+    <section class="py-4 bg-white border-b">
+        <div class="container mx-auto px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-sm font-medium text-neutral-600">Active Filters:</span>
+                    
+                    {% if search_query %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                            <i class="fas fa-search mr-2"></i>"{{ search_query }}"
+                        </span>
+                    {% endif %}
+                    
+                    {% if selected_category %}
+                        {% for cat in categories %}
+                            {% if cat.slug == selected_category %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                    <i class="fas fa-tag mr-2"></i>{{ cat.name }}
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    
+                    {% if selected_difficulty %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                            <i class="fas fa-chart-line mr-2"></i>{{ selected_difficulty|title }}
+                        </span>
+                    {% endif %}
+                    
+                    {% if selected_district %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                            <i class="fas fa-map-marker-alt mr-2"></i>{{ selected_district }}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<!-- Destinations Grid -->
+<section class="py-12 bg-neutral-50">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Results Count -->
+            <div class="mb-6 flex justify-between items-center">
+                <p class="text-neutral-600">
+                    <span class="font-semibold text-neutral-800">{{ page_obj.paginator.count }}</span> destinations found
+                </p>
+            </div>
+            
+            {% if destinations %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for destination in destinations %}
+                        <div class="destination-card bg-white rounded-xl shadow-md overflow-hidden">
+                            <!-- Destination Image -->
+                            <div class="relative h-56 overflow-hidden">
+                                {% if destination.cover_image %}
+                                    <img 
+                                        src="{{ destination.cover_image.url }}" 
+                                        alt="{{ destination.name }}"
+                                        class="w-full h-full object-cover"
+                                    >
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                                        <i class="fas fa-mountain text-white text-6xl opacity-50"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Featured Badge -->
+                                {% if destination.is_featured %}
+                                    <div class="absolute top-4 left-4">
+                                        <span class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                                            <i class="fas fa-star mr-1"></i>Featured
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Difficulty Badge -->
+                                <div class="absolute top-4 right-4">
+                                    <span class="difficulty-badge difficulty-{{ destination.difficulty|lower }}">
+                                        {{ destination.get_difficulty_display }}
+                                    </span>
+                                </div>
+                                
+                                <!-- Category Badge -->
+                                <div class="absolute bottom-4 left-4">
+                                    <span class="px-3 py-1 bg-white/90 backdrop-blur-sm text-neutral-800 rounded-full text-xs font-semibold">
+                                        <i class="{{ destination.category.icon }} mr-1"></i>{{ destination.category.name }}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <!-- Destination Info -->
+                            <div class="p-5">
+                                <h3 class="text-xl font-bold text-neutral-800 mb-2">
+                                    {{ destination.name }}
+                                </h3>
+                                
+                                <div class="flex items-center text-sm text-neutral-600 mb-3">
+                                    <i class="fas fa-map-marker-alt text-blue-600 mr-2"></i>
+                                    <span>{{ destination.district }}, {{ destination.province }}</span>
+                                </div>
+                                
+                                {% if destination.elevation %}
+                                    <div class="flex items-center text-sm text-neutral-600 mb-3">
+                                        <i class="fas fa-mountain text-blue-600 mr-2"></i>
+                                        <span>{{ destination.elevation }}m elevation</span>
+                                    </div>
+                                {% endif %}
+                                
+                                <p class="text-neutral-600 text-sm mb-4 line-clamp-2">
+                                    {{ destination.short_description }}
+                                </p>
+                                
+                                <!-- Trip Details -->
+                                <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+                                    <div class="flex items-center text-neutral-700">
+                                        <i class="fas fa-calendar-days text-blue-600 mr-2"></i>
+                                        <span class="font-semibold">{{ destination.min_days }}+ days</span>
+                                    </div>
+                                    <div class="flex items-center text-neutral-700">
+                                        <i class="fas fa-money-bill-wave text-blue-600 mr-2"></i>
+                                        <span class="font-semibold">NPR {{ destination.expected_cost_min|floatformat:0 }}+</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Tags -->
+                                {% if destination.tags.all %}
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        {% for tag in destination.tags.all|slice:":3" %}
+                                            <span class="px-2 py-1 bg-neutral-100 text-neutral-700 rounded text-xs">
+                                                #{{ tag.name }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Action Button -->
+                                <a href="{% url 'destinations:detail' destination.slug %}" class="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300">
+                                    View Details
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <div class="mt-12 flex justify-center">
+                        <nav class="flex items-center space-x-2">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                                   class="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition duration-300">
+                                    First
+                                </a>
+                                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                                   class="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition duration-300">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            {% endif %}
+                            
+                            <span class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold">
+                                {{ page_obj.number }}
+                            </span>
+                            
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                                   class="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition duration-300">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if selected_district %}&district={{ selected_district }}{% endif %}" 
+                                   class="px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition duration-300">
+                                    Last
+                                </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                {% endif %}
+                
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-16">
+                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-neutral-100 mb-6">
+                        <i class="fas fa-mountain text-neutral-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-neutral-800 mb-2">No destinations found</h3>
+                    <p class="text-neutral-600 mb-6">Try adjusting your search or filters to discover amazing places</p>
+                    <a href="{% url 'destinations:list' %}" 
+                       class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition duration-300">
+                        <i class="fas fa-redo mr-2"></i>Clear All Filters
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock content %}

@@ -17,13 +17,13 @@
 
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center space-x-1">
-                <a href="explore.html"
+                <a href="{% url 'explore:index'%}"
                     class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200">Explore</a>
                 <a href="/destinations"
                     class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200">Destinations</a>
                 <a href="/packages"
                     class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200">Packages</a>
-                <a href="/local-business"
+                <a href="{% url 'businesses:local_to_global'%}"
                     class="nav-link px-4 py-2 rounded-lg text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-all duration-200">Local
                     to Global</a>
             </div>
@@ -63,9 +63,9 @@
         <div class="px-4 pt-2 pb-4 space-y-2">
             <a href="/explore"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 transition-all mobile-nav-link">Explore</a>
-            <a href="/destinations"
+            <a href="{% url 'destinations:list'%}"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 transition-all mobile-nav-link">Destinations</a>
-            <a href="/packages"
+            <a href="{% url 'packages:list'%}"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 transition-all mobile-nav-link">Packages</a>
             <a href="/local-business"
                 class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-orange-50 transition-all mobile-nav-link">Local

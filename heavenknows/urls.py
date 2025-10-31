@@ -4,11 +4,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
+    path('auth/', include('accounts.urls')),
     path('business/', include('businesses.urls')),
-    # path('destinations/', include('destinations.urls')),
-    # path('packages/', include('packages.urls')),
-    # path('explore/', include('explore.urls')),
+    path('destinations/', include('destinations.urls')),
+    path('packages/', include('packages.urls')),
+    path('', include('explore.urls')),
 ]
 
 from django.contrib import admin

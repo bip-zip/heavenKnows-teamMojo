@@ -74,3 +74,54 @@ class BusinessDashboardView(CreateView):
     form_class = BusinessRegistrationForm
     template_name = 'businesses/dashboard.html'
     success_url = reverse_lazy('businesses:dashboard')
+
+
+from django.views.generic import ListView
+from django.db.models import Q
+from .models import BusinessProfile
+
+
+class LocalToGlobalView(ListView):
+
+    model = BusinessProfile
+    template_name = 'businesses/localtoglobal.html'
+    context_object_name = 'businesses'
+    paginate_by = 12
+
+    def get_queryset(self):
+        queryset = BusinessProfile.objects.filter(
+            is_verified=True,
+            business_type='MANUFACTURER'
+        ).select_related('user').prefetch_related('images', 'manufacturer_details')
+
+        # Search functionality
+        search_query = self.request.GET.get('search', '')
+        if search_query:
+            queryset = queryset.filter(
+                Q(business_name__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(district__icontains=search_query) |
+                Q(province__icontains=search_query) |
+                Q(manufacturer_details__product_category__icontains=search_query) |
+                Q(manufacturer_details__product_description__icontains=search_query)
+            )
+
+        # Filter by location
+        district = self.request.GET.get('district', '')
+        if district:
+            queryset = queryset.filter(district__icontains=district)
+
+        return queryset.order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('search', '')
+        context['selected_district'] = self.request.GET.get('district', '')
+        
+        # Get unique districts for filter dropdown
+        context['districts'] = BusinessProfile.objects.filter(
+            is_verified=True,
+            business_type='MANUFACTURER'
+        ).values_list('district', flat=True).distinct().order_by('district')
+        
+        return context

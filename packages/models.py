@@ -2,6 +2,9 @@ from django.db import models
 from destinations.models import Destination
 from businesses.models import BusinessProfile
 
+# import slugify
+from django.utils.text import slugify
+
 
 class TourPackage(models.Model):
     """
