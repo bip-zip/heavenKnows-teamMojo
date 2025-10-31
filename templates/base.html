@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title -->
+    <title>HeavenKnows | {% block title %}  {% endblock title %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'p.svg' %}">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+
+    <!-- Tailwind CSS CDN Link -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <script src="https://unpkg.com/htmx.org@1.8.5"></script>
+
+    
+
+
+
+    <!-- Fontawesome Icon CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+   
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+        
+        body {
+            font-family: "Lato", sans-serif;
+            overflow: hidden; /* Prevent body scrolling */
+        }
+        
+       
+
+       
+        
+        .animate-gradient {
+            background-size: 300%;
+            -webkit-animation: animatedgradient 10s ease infinite alternate;
+            -moz-animation: animatedgradient 10s ease infinite alternate;
+            animation: animatedgradient 10s ease infinite alternate;
+        }
+    
+        @keyframes animatedgradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+    
+    
+        /* Main content area */
+        .main-content {
+            margin-left: 14rem; /* Same as sidebar width (w-64 = 16rem) */
+            width: calc(100% - 14rem);
+            height: 100vh;
+            overflow-y: auto; /* Allow scrolling in main content */
+        }
+    
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .custom-scrollbar{
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 transparent;
+        }
+    </style>
+
+    {% block styles %}  
+    {% endblock styles %}
+
+
+</head>
+
+<body>
+    {% include 'loader.html'%}
+    {% include 'messages.html' %}
+
+  
+
+    <main>
+        
+
+        {% block heading %}{% endblock heading %}
+        <!-- Content Area -->
+        <div >
+            {% block content %}
+            {% endblock content %}
+        </div>
+
+     
+    </main>
+
+
+        <!-- JS  -->
+        <script>
+        </script>
+
+    {% block scripts %}
+    {% endblock scripts %}
+    
+
+
+
+</body>
+
+</html>
