@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   web:
     build: .
     container_name: heavenknows_web
-    command: gunicorn gunicorn --bind 0.0.0.0:4000 heavenknows.wsgi:application
+    command: gunicorn --bind 0.0.0.0:4000 heavenknows.wsgi:application
     volumes:
       - ./app:/app/app
       - ./db.sqlite3:/app/db.sqlite3
