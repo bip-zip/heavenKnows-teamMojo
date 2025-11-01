@@ -12,6 +12,8 @@ services:
     expose:
       - 4400
     restart: always
+    user: "1000:1000"
+
 
   nginx:
     image: nginx:alpine
