@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}{{ destination.name }} - Destination Details{% endblock title %}
+
 
 {% block styles %}
 <style>
@@ -11,43 +13,117 @@
         z-index: 999;
         transition: all 0.3s ease;
     }
-    .section-link { transition: all 0.3s ease; }
-    .section-link.active { color: #2563eb; border-bottom: 2px solid #2563eb; }
-    .image-gallery img { cursor: pointer; transition: transform 0.3s ease; }
-    .image-gallery img:hover { transform: scale(1.05); }
-    .ai-itinerary-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .day-card { transition: all 0.3s ease; }
-    .day-card:hover { transform: translateX(8px); }
-    .loading-spinner { border: 3px solid #f3f4f6; border-top: 3px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+    .section-link {
+        transition: all 0.3s ease;
+    }
+
+
+    .section-link.active {
+        color: #ea580c;
+        border-bottom: 2px solid #ea580c;
+    }
+
+
+    .image-gallery img {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+
+    .image-gallery img:hover {
+        transform: scale(1.05);
+    }
+
+
+    .ai-itinerary-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+
+    .day-card {
+        transition: all 0.3s ease;
+    }
+
+
+    .day-card:hover {
+        transform: translateX(8px);
+    }
+
+
+    .loading-spinner {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid #3b82f6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
 
     /* Modal styles */
-    .modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); }
-    .modal.active { display: flex; align-items: center; justify-content: center; }
-    .modal-content { max-width: 90%; max-height: 90%; }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+    }
+
 
     /* Leaflet container sizing fix */
-    #leaflet-map { min-height: 240px; }
+    #leaflet-map {
+        min-height: 240px;
+    }
 </style>
 
+
 <!-- Pannellum for 360 view -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
 <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
 
+
 <!-- Leaflet for maps -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 {% endblock styles %}
+
 
 {% block content %}
 <!-- Hero Section with Image -->
 <section class="relative h-[60vh] overflow-hidden">
-    <img
-         src="{{ destination.cover_image.url }}"
-         alt="{{ destination.name }}"
-         class="w-full h-full object-cover"
-    >
+    <img src="{{ destination.cover_image.url }}" alt="{{ destination.name }}" class="w-full h-full object-cover">
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+
 
     <!-- Hero Content -->
     <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -57,9 +133,9 @@
                     <i class="{{ destination.category.icon }} mr-1"></i>{{ destination.category.name }}
                 </span>
                 {% if destination.is_featured %}
-                    <span class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-bold">
-                        <i class="fas fa-star mr-1"></i>Featured
-                    </span>
+                <span class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-bold">
+                    <i class="fas fa-star mr-1"></i>Featured
+                </span>
                 {% endif %}
             </div>
             <h1 class="text-5xl font-bold mb-3">{{ destination.name }}</h1>
@@ -69,10 +145,10 @@
                     <span>{{ destination.district }}, {{ destination.province }}</span>
                 </div>
                 {% if destination.elevation %}
-                    <div class="flex items-center">
-                        <i class="fas fa-mountain mr-2"></i>
-                        <span>{{ destination.elevation }}m</span>
-                    </div>
+                <div class="flex items-center">
+                    <i class="fas fa-mountain mr-2"></i>
+                    <span>{{ destination.elevation }}m</span>
+                </div>
                 {% endif %}
                 <div class="flex items-center">
                     <i class="fas fa-calendar-days mr-2"></i>
@@ -87,48 +163,65 @@
     </div>
 </section>
 
+
 <!-- Sticky Navigation -->
-<nav class="sticky-nav bg-white border-b border-neutral-200 shadow-md">
-    <div class="container mx-auto max-w-7xl px-4">
+<nav class="sticky-nav bg-white border-b border-t border-neutral-200/60 shadow-md">
+    <div class="w-full md:px-16 px-4">
         <div class="flex space-x-8 overflow-x-auto no-scrollbar py-4">
-            <a href="#overview" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Overview</a>
-            <a href="#itinerary" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Itinerary</a>
-            <a href="#ai-planner" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">AI Planner</a>
-            <a href="#gallery" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Gallery</a>
-            <a href="#360-view" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">360° View</a>
-            <a href="#map" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Map</a>
-            <a href="#packages" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Packages</a>
-            <a href="#nearby" class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Nearby</a>
+            <a href="#overview"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Overview</a>
+            <a href="#itinerary"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Itinerary</a>
+            <a href="#ai-planner"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">AI
+                Planner</a>
+            <a href="#gallery"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Gallery</a>
+            <a href="#360-view"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">360°
+                View</a>
+            <a href="#map"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Map</a>
+            <a href="#packages"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Packages</a>
+            <a href="#nearby"
+                class="section-link text-neutral-600 hover:text-blue-600 font-medium whitespace-nowrap pb-2">Nearby</a>
         </div>
     </div>
 </nav>
 
+
 <div class="w-full md:px-16 px-4 py-12">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
 
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-12">
 
+
             <!-- Overview Section -->
             <section id="overview" class="scroll-mt-32">
                 <h2 class="text-2xl font-bold text-neutral-800 mb-6 flex items-center">
-                    
+
+
                     Overview
                 </h2>
                 <div class="bg-white rounded-xl shadow-md p-6 space-y-4">
                     <p class="text-neutral-700 leading-relaxed">{{ destination.full_description }}</p>
 
+
                     <!-- Tags -->
                     {% if destination.tags.all %}
-                        <div class="flex flex-wrap gap-2 pt-4 border-t border-neutral-200">
-                            {% for tag in destination.tags.all %}
-                                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                                    #{{ tag.name }}
-                                </span>
-                            {% endfor %}
-                        </div>
+                    <div class="flex flex-wrap gap-2 pt-4 border-t border-neutral-200">
+                        {% for tag in destination.tags.all %}
+                        <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                            #{{ tag.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
                     {% endif %}
                 </div>
+
 
                 <!-- Key Information Grid -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
@@ -140,7 +233,9 @@
                     <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center">
                         <i class="fas fa-money-bill-wave text-3xl text-green-600 mb-2"></i>
                         <p class="text-sm text-neutral-600">Starting From</p>
-                        <p class="text-xl font-bold text-neutral-800">NPR {{ destination.expected_cost_min|floatformat:0 }}</p>
+                        <p class="text-xl font-bold text-neutral-800">
+                            NPR {{ destination.expected_cost_min|floatformat:0 }}
+                        </p>
                     </div>
                     <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center">
                         <i class="fas fa-chart-line text-3xl text-purple-600 mb-2"></i>
@@ -150,10 +245,12 @@
                     <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 text-center">
                         <i class="fas fa-sun text-3xl text-orange-600 mb-2"></i>
                         <p class="text-sm text-neutral-600">Best Season</p>
-                        <p class="text-sm font-bold text-neutral-800">{{ destination.best_season|default:"Year-round" }}</p>
+                        <p class="text-sm font-bold text-neutral-800">{{ destination.best_season|default:"Year-round" }}
+                        </p>
                     </div>
                 </div>
             </section>
+
 
             <!-- Manual Itinerary Section -->
             {% if manual_itineraries %}
@@ -169,54 +266,59 @@
                         </span>
                     </div>
 
+
                     <div class="space-y-4">
                         {% for day in manual_itineraries.days.all %}
-                            <div class="day-card border-l-4 border-blue-500 pl-6 py-4 bg-neutral-50 rounded-r-lg">
-                                <div class="flex items-start gap-4">
-                                    <div class="flex-shrink-0">
-                                        <div class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
-                                            {{ day.day_number }}
-                                        </div>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h4 class="text-lg font-bold text-neutral-800 mb-2">{{ day.title }}</h4>
-                                        <p class="text-neutral-700 mb-3">{{ day.description }}</p>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                                            {% if day.distance_km %}
-                                                <div class="flex items-center text-neutral-600">
-                                                    <i class="fas fa-walking text-blue-600 mr-2"></i>
-                                                    <span>{{ day.distance_km }} km</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if day.estimated_hours %}
-                                                <div class="flex items-center text-neutral-600">
-                                                    <i class="fas fa-clock text-blue-600 mr-2"></i>
-                                                    <span>{{ day.estimated_hours }} hours</span>
-                                                </div>
-                                            {% endif %}
-                                            {% if day.accommodation_type %}
-                                                <div class="flex items-center text-neutral-600">
-                                                    <i class="fas fa-hotel text-blue-600 mr-2"></i>
-                                                    <span>{{ day.accommodation_type }}</span>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-
-                                        {% if day.meals_included %}
-                                            <div class="mt-2 text-sm text-neutral-600">
-                                                <i class="fas fa-utensils text-green-600 mr-2"></i>
-                                                <span class="font-medium">Meals:</span> {{ day.meals_included }}
-                                            </div>
-                                        {% endif %}
+                        <div class="day-card border-l-4 border-blue-500 pl-6 py-4 bg-neutral-50 rounded-r-lg">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0">
+                                    <div
+                                        class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                                        {{ day.day_number }}
                                     </div>
                                 </div>
+                                <div class="flex-1">
+                                    <h4 class="text-lg font-bold text-neutral-800 mb-2">{{ day.title }}</h4>
+                                    <p class="text-neutral-700 mb-3">{{ day.description }}</p>
+
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                                        {% if day.distance_km %}
+                                        <div class="flex items-center text-neutral-600">
+                                            <i class="fas fa-walking text-blue-600 mr-2"></i>
+                                            <span>{{ day.distance_km }} km</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if day.estimated_hours %}
+                                        <div class="flex items-center text-neutral-600">
+                                            <i class="fas fa-clock text-blue-600 mr-2"></i>
+                                            <span>{{ day.estimated_hours }} hours</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if day.accommodation_type %}
+                                        <div class="flex items-center text-neutral-600">
+                                            <i class="fas fa-hotel text-blue-600 mr-2"></i>
+                                            <span>{{ day.accommodation_type }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+
+                                    {% if day.meals_included %}
+                                    <div class="mt-2 text-sm text-neutral-600">
+                                        <i class="fas fa-utensils text-green-600 mr-2"></i>
+                                        <span class="font-medium">Meals:</span> {{ day.meals_included }}
+                                    </div>
+                                    {% endif %}
+                                </div>
                             </div>
+                        </div>
                         {% endfor %}
                     </div>
                 </div>
             </section>
             {% endif %}
+
 
             <!-- AI Itinerary Generator -->
             <section id="ai-planner" class="scroll-mt-32">
@@ -228,40 +330,57 @@
                         <div class="flex items-start gap-4 mb-6">
                             <div>
                                 <h3 class="text-2xl font-bold mb-2 text-neutral-800">Create Your Custom Itinerary</h3>
-                                <p class="text-neutral-500">Let AI plan your perfect trip with personalized recommendations</p>
+                                <p class="text-neutral-500">Let AI plan your perfect trip with personalized
+                                    recommendations</p>
                             </div>
                         </div>
-    
+
+
                         <div class="bg-white/10 backdrop-blur-sm rounded-lg">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                                 <div>
                                     <label class="block text-sm font-medium mb-2">Number of Days</label>
-                                    <select id="ai-days" class="w-full px-4 py-3 rounded-lg text-neutral-800 border border-neutral-300/80 focus:border-white focus:ring-2 focus:ring-white">
+                                    <select id="ai-days"
+                                        class="w-full px-4 py-3 rounded-lg text-neutral-800 border border-neutral-300/80 focus:border-white focus:ring-2 focus:ring-white">
                                         {% for i in all_itineraries %}
-                                            <option value="{{ i.duration_days }}">{{ i.duration_days }} days</option>
+                                        <option value="{{ i.duration_days }}">{{ i.duration_days }} days</option>
                                         {% endfor %}
-                                        <option value="{{ destination.min_days }}" selected>{{ destination.min_days }} days</option>
+                                        <option value="{{ destination.min_days }}" selected>{{ destination.min_days }}
+                                            days</option>
                                         {% if destination.max_days %}
-                                            <option value="{{ destination.max_days }}">{{ destination.max_days }} days</option>
+                                        <option value="{{ destination.max_days }}">{{ destination.max_days }} days
+                                        </option>
                                         {% endif %}
                                     </select>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium mb-2">Budget Level</label>
-                                    <select id="ai-budget" class="w-full px-4 py-3 rounded-lg text-neutral-800 border border-neutral-300/80 focus:border-white focus:ring-2 focus:ring-white">
+                                    <select id="ai-budget"
+                                        class="w-full px-4 py-3 rounded-lg text-neutral-800 border border-neutral-300/80 focus:border-white focus:ring-2 focus:ring-white">
                                         <option value="low">Budget</option>
                                         <option value="moderate" selected>Moderate</option>
                                         <option value="high">Luxury</option>
                                     </select>
                                 </div>
                             </div>
-    
-                            <button onclick="generateAIItinerary()" id="generate-btn" class="w-full bg-linear-to-br from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-50 flex items-center justify-center transition duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-purple"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg>
+
+
+                            <button onclick="generateAIItinerary()" id="generate-btn"
+                                class="w-full bg-linear-to-br from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-purple-50 flex items-center justify-center transition duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="mr-3 text-purple">
+                                    <path
+                                        d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
+                                    <path d="M20 2v4" />
+                                    <path d="M22 4h-4" />
+                                    <circle cx="4" cy="20" r="2" />
+                                </svg>
                                 Generate AI Itinerary
                             </button>
                         </div>
-    
+
+
                         <!-- AI Result Container -->
                         <div id="ai-result" class="mt-6 hidden">
                             <div class="bg-white rounded-xl p-6 text-neutral-800">
@@ -273,28 +392,27 @@
                             </div>
                         </div>
 
+
                     </div>
                 </div>
             </section>
+
 
             <!-- Photo Gallery -->
             <section id="gallery" class="scroll-mt-32">
                 <h2 class="text-2xl font-bold text-neutral-800 mb-6 flex items-center">
                     Photo Gallery
                 </h2>
-                <div class="image-gallery grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="image-gallery grid grid-cols-2 md:grid-cols-6 gap-4">
                     {% for image in regular_images %}
-                        <div class="aspect-square overflow-hidden rounded-lg shadow-md">
-                            <img
-                                 src="{{ image.image.url }}"
-                                 alt="{{ image.caption }}"
-                                 class="w-full h-full object-cover"
-                                 onclick="openModal('{{ image.image.url }}')"
-                            >
-                        </div>
+                    <div class="aspect-square overflow-hidden rounded-lg shadow-md">
+                        <img src="{{ image.image.url }}" alt="{{ image.caption }}" class="w-full h-full object-cover"
+                            onclick="openModal('{{ image.image.url }}')">
+                    </div>
                     {% endfor %}
                 </div>
             </section>
+
 
             <!-- 360 View -->
             {% if images_360 %}
@@ -308,6 +426,7 @@
             </section>
             {% endif %}
 
+
             <!-- Map Section -->
             <section id="map" class="scroll-mt-32">
                 <h2 class="text-2xl font-bold text-neutral-800 mb-6 flex items-center">
@@ -317,17 +436,16 @@
                 <div class="bg-white rounded-xl shadow-md overflow-hidden">
                     <div id="leaflet-map" class="w-full h-96"></div>
                     <div class="p-4 border-t">
-                        <a
-                             href="https://www.google.com/maps/search/?api=1&query={{ destination.latitude }},{{ destination.longitude }}"
-                             target="_blank"
-                            class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
-                        >
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ destination.latitude }},{{ destination.longitude }}"
+                            target="_blank"
+                            class="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium">
                             <i class="fas fa-external-link-alt mr-2"></i>
                             Open in Google Maps
                         </a>
                     </div>
                 </div>
             </section>
+
 
             <!-- Related Packages -->
             {% if related_packages %}
@@ -337,41 +455,46 @@
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {% for package in related_packages %}
-                        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
-                            <div class="relative h-48">
-                                {% if package.cover_image %}
-                                    <img src="{{ package.cover_image.url }}" alt="{{ package.title }}" class="w-full h-full object-cover">
-                                {% else %}
-                                    <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
-                                {% endif %}
-                            </div>
-                            <div class="p-5">
-                                <h3 class="text-lg font-bold text-neutral-800 mb-2">{{ package.title }}</h3>
-                                <p class="text-sm text-neutral-600 mb-3">by {{ package.travel_business.business_name }}</p>
-                                <div class="flex items-center justify-between text-sm mb-4">
-                                    <span class="text-neutral-600">
-                                        <i class="fas fa-calendar-days mr-1"></i>
-                                        {{ package.duration_days }}D/{{ package.duration_nights }}N
-                                    </span>
-                                    <span class="text-green-600 font-bold">
-                                        NPR {{ package.price_per_person|floatformat:0 }}
-                                    </span>
-                                </div>
-                                <a href="#" class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
-                                    View Package
-                                </a>
-                            </div>
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
+                        <div class="relative h-48">
+                            {% if package.cover_image %}
+                            <img src="{{ package.cover_image.url }}" alt="{{ package.title }}"
+                                class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500"></div>
+                            {% endif %}
                         </div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-bold text-neutral-800 mb-2">{{ package.title }}</h3>
+                            <p class="text-sm text-neutral-600 mb-3">by {{ package.travel_business.business_name }}</p>
+                            <div class="flex items-center justify-between text-sm mb-4">
+                                <span class="text-neutral-600">
+                                    <i class="fas fa-calendar-days mr-1"></i>
+                                    {{ package.duration_days }}D/{{ package.duration_nights }}N
+                                </span>
+                                <span class="text-green-600 font-bold">
+                                    NPR {{ package.price_per_person|floatformat:0 }}
+                                </span>
+                            </div>
+                            <a href="#"
+                                class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-300">
+                                View Package
+                            </a>
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
             </section>
             {% endif %}
 
+
         </div>
+
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
             <div class="sticky top-36 space-y-6">
+
 
                 <!-- Quick Info Card -->
                 <div class="bg-linear-to-br from-orange-500 to-orange-600 text-white rounded-xl shadow-lg p-6">
@@ -404,60 +527,69 @@
                     </div>
                 </div>
 
+
                 <!-- Nearby Businesses -->
                 <div class="bg-white rounded-xl shadow-md p-4">
                     <h4 class="text-lg font-semibold mb-3">Nearby Businesses</h4>
                     <div class="space-y-3 text-sm">
                         {% for b in nearby_businesses %}
-                            <div class="flex items-start gap-3">
-                                {% if b.images.all %}
-                                    <img src="{{ b.images.all.0.image.url }}" alt="{{ b.business_name }}" class="w-12 h-12 object-cover rounded-md">
-                                {% else %}
-                                    <div class="w-12 h-12 bg-neutral-100 rounded-md"></div>
-                                {% endif %}
-                                <div class="flex-1">
-                                    <div class="font-medium">{{ b.business_name }}</div>
-                                    <div class="text-xs text-neutral-500">{{ b.short_description|truncatechars:60 }}</div>
-                                </div>
+                        <div class="flex items-start gap-3">
+                            {% if b.images.all %}
+                            <img src="{{ b.images.all.0.image.url }}" alt="{{ b.business_name }}"
+                                class="w-12 h-12 object-cover rounded-md">
+                            {% else %}
+                            <div class="w-12 h-12 bg-neutral-100 rounded-md"></div>
+                            {% endif %}
+                            <div class="flex-1">
+                                <div class="font-medium">{{ b.business_name }}</div>
+                                <div class="text-xs text-neutral-500">{{ b.short_description|truncatechars:60 }}</div>
                             </div>
+                        </div>
                         {% empty %}
-                            <p class="text-neutral-500">No nearby businesses found.</p>
+                        <p class="text-neutral-500">No nearby businesses found.</p>
                         {% endfor %}
                     </div>
                 </div>
+
 
                 <!-- Nearby Destinations CTA -->
                 <div class="bg-white rounded-xl shadow-md p-4">
                     <h4 class="text-lg font-semibold mb-3">Nearby Destinations</h4>
                     <div class="space-y-2">
                         {% for nd in nearby_destinations %}
-                            <a href="{% url 'destinations:detail' nd.slug %}" class="block text-sm text-blue-600 hover:underline">
-                                {{ nd.name }} — {{ nd.district }}
-                            </a>
+                        <a href="{% url 'destinations:detail' nd.slug %}"
+                            class="block text-sm text-blue-600 hover:underline">
+                            {{ nd.name }} — {{ nd.district }}
+                        </a>
                         {% empty %}
-                            <p class="text-neutral-500">No nearby destinations.</p>
+                        <p class="text-neutral-500">No nearby destinations.</p>
                         {% endfor %}
                     </div>
                 </div>
 
+
             </div>
         </div>
+
 
     </div>
 </div>
 
+
 <!-- Image Modal -->
 <div id="image-modal" class="modal" onclick="closeModal()">
-    <img id="modal-img" class="modal-content" src="" alt="Preview"/>
+    <img id="modal-img" class="modal-content" src="" alt="Preview" />
 </div>
 
+
 {% endblock content %}
+
 
 {% block scripts %}
 <script>
     // Helper: smooth scroll with offset
-    document.querySelectorAll('.section-link').forEach(function(el) {
-        el.addEventListener('click', function(e) {
+    document.querySelectorAll('.section-link').forEach(function (el) {
+        el.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (!target) return;
@@ -467,12 +599,13 @@
         });
     });
 
+
     // Highlight nav link on scroll
     const sections = document.querySelectorAll('section[id]');
     const navLinks = document.querySelectorAll('.section-link');
     function onScroll() {
         let index = sections.length;
-        while(--index && window.scrollY + 100 < sections[index].offsetTop) {}
+        while (--index && window.scrollY + 100 < sections[index].offsetTop) { }
         navLinks.forEach((link) => link.classList.remove('active'));
         const id = sections[index].id;
         const activeLink = document.querySelector('.section-link[href="#' + id + '"]');
@@ -480,6 +613,7 @@
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+
 
     // Modal functions
     function openModal(url) {
@@ -494,8 +628,9 @@
         document.getElementById('modal-img').src = '';
     }
 
+
     // Initialize Leaflet map
-    (function initMap(){
+    (function initMap() {
         try {
             const lat = parseFloat("{{ destination.latitude|default:'0' }}");
             const lng = parseFloat("{{ destination.longitude|default:'0' }}");
@@ -511,9 +646,10 @@
         }
     })();
 
+
     // Initialize Pannellum if 360 images exist
     {% if images_360 %}
-    (function initPanorama(){
+    (function initPanorama() {
         try {
             // Use the first 360 image
             const imageUrl = "{{ images_360.0.image.url }}";
@@ -530,6 +666,7 @@
     })();
     {% endif %}
 
+
     // AI Itinerary generation
     async function generateAIItinerary() {
         const days = document.getElementById('ai-days').value;
@@ -539,12 +676,14 @@
         const content = document.getElementById('ai-content');
         const generateBtn = document.getElementById('generate-btn');
 
+
         // Show result container and loading
         resultBox.classList.remove('hidden');
         loading.classList.remove('hidden');
         content.classList.add('hidden');
         generateBtn.disabled = true;
         generateBtn.innerText = 'Generating...';
+
 
         try {
             const url = "{% url 'destinations:generate_itinerary' destination.slug %}";
@@ -558,11 +697,14 @@
                 body: JSON.stringify({ days: days, budget: budget })
             });
 
+
             const data = await resp.json();
+
 
             if (!data.success) {
                 throw new Error(data.error || 'AI generation failed');
             }
+
 
             renderAIContent(data.itinerary);
         } catch (err) {
@@ -576,6 +718,7 @@
         }
     }
 
+
     function renderAIContent(itinerary) {
         const content = document.getElementById('ai-content');
         if (!itinerary) {
@@ -584,88 +727,97 @@
             return;
         }
 
+
         // Build HTML for itinerary
         let html = '';
         html += `<div class="mb-4 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold">Estimated Total: NPR ${Number(itinerary.total_estimated_cost || 0).toLocaleString()}</h3>
-                        <p class="text-sm text-neutral-600 mt-1">Best time to visit: ${itinerary.best_time_to_visit || '—'}</p>
-                    </div>
-                    <div class="text-right text-sm">
-                        <button onclick="copyItinerary()" class="px-3 py-2 bg-blue-600 text-white rounded-md">Copy JSON</button>
-                    </div>
-                 </div>`;
+                   <div>
+                       <h3 class="text-2xl font-bold">Estimated Total: NPR ${Number(itinerary.total_estimated_cost || 0).toLocaleString()}</h3>
+                       <p class="text-sm text-neutral-600 mt-1">Best time to visit: ${itinerary.best_time_to_visit || '—'}</p>
+                   </div>
+                   <div class="text-right text-sm">
+                       <button onclick="copyItinerary()" class="px-3 py-2 bg-blue-600 text-white rounded-md">Copy JSON</button>
+                   </div>
+                </div>`;
+
 
         if (itinerary.cost_breakdown) {
             html += `<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">`;
-            ['accommodation','food','transportation','activities','miscellaneous'].forEach(k => {
+            ['accommodation', 'food', 'transportation', 'activities', 'miscellaneous'].forEach(k => {
                 const v = itinerary.cost_breakdown[k] || 0;
                 html += `<div class="bg-neutral-50 p-3 rounded-md text-center">
-                            <div class="text-xs text-neutral-500">${k.charAt(0).toUpperCase()+k.slice(1)}</div>
-                            <div class="font-bold mt-1">NPR ${Number(v).toLocaleString()}</div>
-                         </div>`;
-            });
-            html += `</div>`;
-        }
-
-        if (Array.isArray(itinerary.daily_itinerary)) {
-            html += `<div class="space-y-3">`;
-            itinerary.daily_itinerary.forEach(day => {
-                html += `<div class="border rounded-lg p-4 bg-neutral-50">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <div class="text-sm text-neutral-500">Day ${day.day}</div>
-                                    <h4 class="text-lg font-semibold">${escapeHtml(day.title || 'Day')}</h4>
-                                </div>
-                                <div class="text-sm font-semibold">NPR ${Number(day.estimated_cost || 0).toLocaleString()}</div>
-                            </div>
-                            <p class="mt-2 text-neutral-700">${Array.isArray(day.activities) ? '<ul class="list-disc ml-5">'+day.activities.map(a => `<li>${escapeHtml(a)}</li>`).join('')+'</ul>' : escapeHtml(day.activities || '')}</p>
-                            <div class="mt-3 text-sm text-neutral-600">
-                                <div><strong>Accommodation:</strong> ${escapeHtml(day.accommodation || '—')}</div>
-                                <div><strong>Meals:</strong> ${escapeHtml(day.meals || '—')}</div>
-                                ${day.tips ? `<div class="mt-1"><strong>Tips:</strong> ${escapeHtml(day.tips)}</div>` : ''}
-                            </div>
+                           <div class="text-xs text-neutral-500">${k.charAt(0).toUpperCase() + k.slice(1)}</div>
+                           <div class="font-bold mt-1">NPR ${Number(v).toLocaleString()}</div>
                         </div>`;
             });
             html += `</div>`;
         }
 
+
+        if (Array.isArray(itinerary.daily_itinerary)) {
+            html += `<div class="space-y-3">`;
+            itinerary.daily_itinerary.forEach(day => {
+                html += `<div class="border rounded-lg p-4 bg-neutral-50">
+                           <div class="flex items-start justify-between">
+                               <div>
+                                   <div class="text-sm text-neutral-500">Day ${day.day}</div>
+                                   <h4 class="text-lg font-semibold">${escapeHtml(day.title || 'Day')}</h4>
+                               </div>
+                               <div class="text-sm font-semibold">NPR ${Number(day.estimated_cost || 0).toLocaleString()}</div>
+                           </div>
+                           <p class="mt-2 text-neutral-700">${Array.isArray(day.activities) ? '<ul class="list-disc ml-5">' + day.activities.map(a => `<li>${escapeHtml(a)}</li>`).join('') + '</ul>' : escapeHtml(day.activities || '')}</p>
+                           <div class="mt-3 text-sm text-neutral-600">
+                               <div><strong>Accommodation:</strong> ${escapeHtml(day.accommodation || '—')}</div>
+                               <div><strong>Meals:</strong> ${escapeHtml(day.meals || '—')}</div>
+                               ${day.tips ? `<div class="mt-1"><strong>Tips:</strong> ${escapeHtml(day.tips)}</div>` : ''}
+                           </div>
+                       </div>`;
+            });
+            html += `</div>`;
+        }
+
+
         if (Array.isArray(itinerary.what_to_pack)) {
             html += `<div class="mt-4">
-                        <h4 class="font-semibold">What to pack</h4>
-                        <ul class="list-disc ml-5 text-sm text-neutral-700 mt-2">
-                            ${itinerary.what_to_pack.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
-                        </ul>
-                    </div>`;
+                       <h4 class="font-semibold">What to pack</h4>
+                       <ul class="list-disc ml-5 text-sm text-neutral-700 mt-2">
+                           ${itinerary.what_to_pack.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+                       </ul>
+                   </div>`;
         }
+
 
         if (Array.isArray(itinerary.important_notes)) {
             html += `<div class="mt-4">
-                        <h4 class="font-semibold">Important notes</h4>
-                        <ul class="list-disc ml-5 text-sm text-neutral-700 mt-2">
-                            ${itinerary.important_notes.map(n => `<li>${escapeHtml(n)}</li>`).join('')}
-                        </ul>
-                    </div>`;
+                       <h4 class="font-semibold">Important notes</h4>
+                       <ul class="list-disc ml-5 text-sm text-neutral-700 mt-2">
+                           ${itinerary.important_notes.map(n => `<li>${escapeHtml(n)}</li>`).join('')}
+                       </ul>
+                   </div>`;
         }
+
 
         // Store raw JSON on element dataset for copy
         content.dataset.raw = JSON.stringify(itinerary, null, 2);
         content.innerHTML = html;
         content.classList.remove('hidden');
 
+
         // Scroll into view
         content.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+
     function copyItinerary() {
         const content = document.getElementById('ai-content');
         const raw = content.dataset.raw || '{}';
-        navigator.clipboard.writeText(raw).then(function() {
+        navigator.clipboard.writeText(raw).then(function () {
             alert('Itinerary JSON copied to clipboard');
-        }, function(err) {
+        }, function (err) {
             alert('Could not copy JSON: ' + err);
         });
     }
+
 
     // Basic HTML escaping to avoid injection
     function escapeHtml(unsafe) {
