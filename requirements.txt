@@ -29,7 +29,7 @@ pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pydantic==2.12.3
 pydantic_core==2.41.4
-pygraphviz==1.14
+# pygraphviz==1.14
 pyparsing==3.2.5
 python-decouple==3.8
 requests==2.32.5
