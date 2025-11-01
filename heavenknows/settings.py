@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-7e#dcqb&9v4zrwhp9y0=ogd&oqw7(-#!ha_-iwtv%q)^8r=p)3
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['http://89.117.61.40:8080/']
+CSRF_TRUSTED_ORIGINS = ['http://89.117.61.40:8080',]
 
 LOGIN_URL = "accounts:login"
 # LOGIN_REDIRECT_URL = 'dashboard:dashboard'
