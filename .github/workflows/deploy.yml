@@ -1,0 +1,38 @@
+name: Deploy Heavenknows (Direct SSH)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload project files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "."
+          target: "~/deployments/heavenknows"
+
+      - name: SSH into server and deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/deployments/heavenknows
+            docker compose down
+            docker compose build --no-cache
+            docker compose up -d
+
+            echo "Running migrations and collecting static files..."
+            docker exec heavenknows_web python app/manage.py migrate --noinput
+            docker exec heavenknows_web python app/manage.py collectstatic --noinput
