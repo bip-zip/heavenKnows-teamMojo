@@ -4,20 +4,23 @@ services:
   web:
     build: .
     container_name: heavenknows_web
-    command: gunicorn --bind 0.0.0.0:4000 heavenknows.wsgi:application
+    command: gunicorn gunicorn --bind 0.0.0.0:4000 heavenknows.wsgi:application
     volumes:
-      - .:/app
-    ports:
-      - "4000:4000"
-    depends_on:
-      - nginx
+      - ./app:/app/app
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./static:/app/static
+    expose:
+      - 4000
+    restart: always
 
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     container_name: heavenknows_nginx
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./static:/static
     depends_on:
       - web
+    restart: always
