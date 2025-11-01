@@ -155,3 +155,164 @@ class PackageListView(ListView):
         context['max_price'] = price_stats['max_price'] or 0
         
         return context
+    
+from django.views.generic import DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from django.urls import reverse
+from django.http import JsonResponse
+from django.db.models import Avg, Count
+from django.db import transaction
+
+from .models import TourPackage, PackageReview, PackageBooking
+from .forms import PackageReviewForm, PackageBookingForm
+
+
+class PackageDetailView(DetailView):
+    """Detailed view of a tour package"""
+    model = TourPackage
+    template_name = 'packages/package_detail.html'
+    context_object_name = 'package'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+    
+    def get_queryset(self):
+        return TourPackage.objects.filter(status='PUBLISHED').select_related(
+            'travel_business__user'
+        ).prefetch_related('destinations', 'itinerary_days', 'reviews__user')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        package = self.get_object()
+        
+        # Reviews and ratings
+        reviews = package.reviews.all()
+        context['reviews'] = reviews
+        context['review_count'] = reviews.count()
+        
+        # Average rating
+        rating_stats = reviews.aggregate(
+            avg_rating=Avg('rating'),
+            total_reviews=Count('id')
+        )
+        context['avg_rating'] = rating_stats['avg_rating'] or 0
+        
+        # Rating distribution
+        context['rating_distribution'] = {
+            5: reviews.filter(rating=5).count(),
+            4: reviews.filter(rating=4).count(),
+            3: reviews.filter(rating=3).count(),
+            2: reviews.filter(rating=2).count(),
+            1: reviews.filter(rating=1).count(),
+        }
+        
+        # Check if user has already reviewed
+        if self.request.user.is_authenticated:
+            context['user_has_reviewed'] = reviews.filter(user=self.request.user).exists()
+            context['user_review'] = reviews.filter(user=self.request.user).first()
+        else:
+            context['user_has_reviewed'] = False
+            context['user_review'] = None
+        
+        # Forms
+        context['review_form'] = PackageReviewForm()
+        context['booking_form'] = PackageBookingForm(initial={
+            'lead_traveler_name': self.request.user.get_full_name() if self.request.user.is_authenticated else '',
+            'lead_traveler_email': self.request.user.email if self.request.user.is_authenticated else '',
+            'number_of_travelers': package.group_size_min
+        })
+        
+        # Similar packages
+        context['similar_packages'] = TourPackage.objects.filter(
+            status='PUBLISHED',
+            destinations__in=package.destinations.all()
+        ).exclude(id=package.id).distinct()[:3]
+        
+        # Increment view count
+        package.view_count += 1
+        package.save(update_fields=['view_count'])
+        
+        return context
+
+
+class PackageReviewCreateView(LoginRequiredMixin, CreateView):
+    """Create a review for a package"""
+    model = PackageReview
+    form_class = PackageReviewForm
+    
+    def form_valid(self, form):
+        package = get_object_or_404(TourPackage, slug=self.kwargs['slug'], status='PUBLISHED')
+        
+        # Check if user already reviewed
+        if PackageReview.objects.filter(package=package, user=self.request.user).exists():
+            messages.error(self.request, 'You have already reviewed this package.')
+            return redirect('packages:detail', slug=package.slug)
+        
+        review = form.save(commit=False)
+        review.package = package
+        review.user = self.request.user
+        review.save()
+        
+        messages.success(self.request, 'Thank you for your review!')
+        return redirect('packages:detail', slug=package.slug)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors in your review.')
+        return redirect('packages:detail', slug=self.kwargs['slug'])
+
+
+class PackageBookingCreateView(LoginRequiredMixin, CreateView):
+    """Create a booking for a package"""
+    model = PackageBooking
+    form_class = PackageBookingForm
+    
+    def form_valid(self, form):
+        package = get_object_or_404(TourPackage, slug=self.kwargs['slug'], status='PUBLISHED')
+        
+        try:
+            with transaction.atomic():
+                booking = form.save(commit=False)
+                booking.package = package
+                booking.user = self.request.user
+                
+                # Calculate total amount
+                booking.total_amount = package.price_per_person * booking.number_of_travelers
+                
+                # Validate group size
+                if booking.number_of_travelers < package.group_size_min:
+                    messages.error(self.request, f'Minimum group size is {package.group_size_min} travelers.')
+                    return self.form_invalid(form)
+                
+                if booking.number_of_travelers > package.group_size_max:
+                    messages.error(self.request, f'Maximum group size is {package.group_size_max} travelers.')
+                    return self.form_invalid(form)
+                
+                booking.save()
+                
+                messages.success(
+                    self.request, 
+                    f'Booking request submitted successfully! Your booking number is {booking.booking_number}. '
+                    f'The travel agency will contact you shortly.'
+                )
+                return redirect('packages:booking_confirmation', booking_number=booking.booking_number)
+        
+        except Exception as e:
+            messages.error(self.request, f'Booking failed: {str(e)}')
+            return self.form_invalid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors in your booking form.')
+        return redirect('packages:detail', slug=self.kwargs['slug'])
+
+
+class BookingConfirmationView(LoginRequiredMixin, DetailView):
+    """Booking confirmation page"""
+    model = PackageBooking
+    template_name = 'packages/booking_confirmation.html'
+    context_object_name = 'booking'
+    slug_field = 'booking_number'
+    slug_url_kwarg = 'booking_number'
+    
+    def get_queryset(self):
+        return PackageBooking.objects.filter(user=self.request.user).select_related('package', 'package__travel_business')

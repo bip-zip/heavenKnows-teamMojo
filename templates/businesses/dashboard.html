@@ -1,8 +1,241 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} Dashboard {% endblock title %}
-{% block heading %} Dashboard {% endblock heading %}
+
+{% block title %}Business Dashboard{% endblock title %}
 
 {% block content %}
-<h2>Business Dashboard</h2>
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <!-- Business Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">{{ business.business_name }}</h1>
+                    <p class="text-purple-100">{{ business.get_business_type_display }}</p>
+                    <div class="flex items-center gap-4 mt-3">
+                        <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold">
+                            <i class="fas fa-map-marker-alt mr-1"></i>{{ business.district }}, {{ business.province }}</span>
+                        {% if is_verified %}
+                            <span class="inline-block px-3 py-1 bg-green-500 rounded-full text-sm font-semibold">
+                                <i class="fas fa-check-circle mr-1"></i>Verified
+                            </span>
+                        {% else %}
+                            <span class="inline-block px-3 py-1 bg-yellow-500 rounded-full text-sm font-semibold">
+                                <i class="fas fa-clock mr-1"></i>Pending Verification
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    {% if user.user_type == 'TRAVEL_BUSINESS' %}
+                        <a href="{% url 'packages:create' %}" 
+                           class="px-6 py-3 bg-white text-indigo-600 hover:bg-purple-50 font-semibold rounded-lg transition duration-300 text-center">
+                            <i class="fas fa-plus mr-2"></i>Create Package
+                        </a>
+                    {% elif user.user_type == 'LOCAL_BUSINESS' %}
+                        <a href="{% url 'businesses:update_accommodation' %}" 
+                           class="px-6 py-3 bg-white text-indigo-600 hover:bg-purple-50 font-semibold rounded-lg transition duration-300 text-center">
+                            <i class="fas fa-edit mr-2"></i>Update Details
+                        </a>
+                    {% elif user.user_type == 'MANUFACTURER' %}
+                        <a href="{% url 'businesses:update_manufacturer' %}" 
+                           class="px-6 py-3 bg-white text-indigo-600 hover:bg-purple-50 font-semibold rounded-lg transition duration-300 text-center">
+                            <i class="fas fa-edit mr-2"></i>Update Details
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'businesses:upload_image' %}" 
+                       class="px-6 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-semibold rounded-lg transition duration-300 text-center">
+                        <i class="fas fa-image mr-2"></i>Upload Images
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        {% if user.user_type == 'TRAVEL_BUSINESS' %}
+            <!-- Travel Business Dashboard -->
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Total Packages</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ total_packages }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-suitcase text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Published</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ published_packages }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Total Bookings</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ total_bookings }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-calendar-check text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm mb-1">Revenue</p>
+                            <p class="text-3xl font-bold text-gray-800">NPR {{ total_revenue|floatformat:0 }}</p>
+                        </div>
+                        <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-coins text-purple-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-receipt text-indigo-600 mr-3"></i>
+                    Recent Bookings
+                </h2>
+
+                {% if bookings %}
+                    <div class="space-y-4">
+                        {% for booking in bookings %}
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition duration-300">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold text-gray-800">{{ booking.package.title }}</h3>
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold {% if booking.status == 'CONFIRMED' %}bg-green-100 text-green-700{% elif booking.status == 'PENDING' %}bg-yellow-100 text-yellow-700{% elif booking.status == 'CANCELLED' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <p><i class="fas fa-user mr-1 text-indigo-500"></i> {{ booking.user.get_full_name|default:booking.user.email }}</p>
+                                    <p><i class="fas fa-calendar mr-1 text-indigo-500"></i> {{ booking.preferred_start_date|date:"M d, Y" }}</p>
+                                    <p><i class="fas fa-money-bill-wave mr-1 text-indigo-500"></i> NPR {{ booking.total_amount|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-8">
+                        <i class="fas fa-calendar-times text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-600">No bookings yet</p>
+                    </div>
+                {% endif %}
+            </div>
+
+        {% elif user.user_type == 'LOCAL_BUSINESS' %}
+            <!-- Local Business Dashboard (Hotel / Homestay / Restaurant) -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-bed text-indigo-600 mr-3"></i>
+                    Accommodation Details
+                </h2>
+                {% if accommodation_details %}
+                    <ul class="text-gray-700 space-y-2">
+                        <li><strong>Total Rooms:</strong> {{ accommodation_details.total_rooms }}</li>
+                        <li><strong>Price Range:</strong> NPR {{ accommodation_details.price_range_min }} - {{ accommodation_details.price_range_max }}</li>
+                        <li><strong>Wi-Fi:</strong> {{ accommodation_details.has_wifi|yesno:"Yes,No" }}</li>
+                        <li><strong>Parking:</strong> {{ accommodation_details.has_parking|yesno:"Yes,No" }}</li>
+                        <li><strong>Restaurant:</strong> {{ accommodation_details.has_restaurant|yesno:"Yes,No" }}</li>
+                        <li><strong>Check-in:</strong> {{ accommodation_details.check_in_time }}</li>
+                        <li><strong>Check-out:</strong> {{ accommodation_details.check_out_time }}</li>
+                    </ul>
+                {% else %}
+                    <p class="text-gray-600">No accommodation details added yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Business Images -->
+            <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-images text-indigo-600 mr-3"></i>
+                    Business Images
+                </h2>
+                {% if images %}
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for img in images %}
+                            <div class="relative">
+                                <img src="{{ img.image.url }}" alt="{{ img.caption }}" class="rounded-lg w-full h-40 object-cover shadow-sm">
+                                {% if img.is_primary %}
+                                    <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                        Primary
+                                    </span>
+                                {% endif %}
+                                <a href="{% url 'businesses:delete_image' img.pk %}" 
+                                   class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition">
+                                   <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">No images uploaded yet.</p>
+                {% endif %}
+            </div>
+
+        {% elif user.user_type == 'MANUFACTURER' %}
+            <!-- Manufacturer Dashboard -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-industry text-indigo-600 mr-3"></i>
+                    Product Details
+                </h2>
+                {% if manufacturer_details %}
+                    <ul class="text-gray-700 space-y-2">
+                        <li><strong>Category:</strong> {{ manufacturer_details.get_product_category_display }}</li>
+                        <li><strong>Description:</strong> {{ manufacturer_details.product_description }}</li>
+                        <li><strong>Min Order Quantity:</strong> {{ manufacturer_details.minimum_order_quantity }}</li>
+                        <li><strong>Ships Internationally:</strong> {{ manufacturer_details.ships_internationally|yesno:"Yes,No" }}</li>
+                    </ul>
+                {% else %}
+                    <p class="text-gray-600">No product details added yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Business Images -->
+            <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-images text-indigo-600 mr-3"></i>
+                    Business Images
+                </h2>
+                {% if images %}
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {% for img in images %}
+                            <div class="relative">
+                                <img src="{{ img.image.url }}" alt="{{ img.caption }}" class="rounded-lg w-full h-40 object-cover shadow-sm">
+                                {% if img.is_primary %}
+                                    <span class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                        Primary
+                                    </span>
+                                {% endif %}
+                                <a href="{% url 'businesses:delete_image' img.pk %}" 
+                                   class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition">
+                                   <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-600">No images uploaded yet.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock content %}

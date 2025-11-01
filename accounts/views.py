@@ -52,9 +52,46 @@ class UserRegisterView(CreateView):
     
 
 
-class ProfileView(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'accounts/profile.html')
+from django.views.generic import TemplateView, UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.db.models import Count, Avg, Sum
+
+from businesses.models import BusinessProfile, AccommodationDetails, ManufacturerDetails
+from packages.models import TourPackage, PackageBooking
+from destinations.models import Destination
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
+    """User profile page for tourists"""
+    template_name = 'accounts/profile.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Get user bookings
+        context['bookings'] = PackageBooking.objects.filter(
+            user=user
+        ).select_related('package', 'package__travel_business').order_by('-created_at')[:10]
+        
+        # Get user reviews
+        from packages.models import PackageReview
+        context['reviews'] = PackageReview.objects.filter(
+            user=user
+        ).select_related('package').order_by('-created_at')[:10]
+        
+        # Booking stats
+        booking_stats = PackageBooking.objects.filter(user=user).aggregate(
+            total_bookings=Count('id'),
+            total_spent=Sum('total_amount')
+        )
+        context['total_bookings'] = booking_stats['total_bookings'] or 0
+        context['total_spent'] = booking_stats['total_spent'] or 0
+        
+        return context
 
 class LogoutView(View):
     def post(self, request, *args, **kwargs):

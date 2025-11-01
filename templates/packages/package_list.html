@@ -353,7 +353,7 @@
                                 {% endif %}
                                 
                                 <!-- Action Button -->
-                                <a href="#" class="block w-full text-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300">
+                                <a href="{% url 'packages:detail' package.slug %}" class="block w-full text-center bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300">
                                     View Details
                                     <i class="fas fa-arrow-right ml-2"></i>
                                 </a>

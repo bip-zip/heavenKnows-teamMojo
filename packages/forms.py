@@ -80,3 +80,69 @@ class TourPackageForm(forms.ModelForm):
                 'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3'
             })
         }
+
+from django import forms
+from .models import PackageReview, PackageBooking
+
+
+class PackageReviewForm(forms.ModelForm):
+    """Form for submitting package reviews"""
+    
+    class Meta:
+        model = PackageReview
+        fields = ['rating', 'title', 'comment', 'would_recommend']
+        widgets = {
+            'rating': forms.RadioSelect(choices=[(i, i) for i in range(1, 6)], attrs={
+                'class': 'hidden'
+            }),
+            'title': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'placeholder': 'Summary of your experience'
+            }),
+            'comment': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'rows': 5,
+                'placeholder': 'Share your experience with other travelers...'
+            }),
+            'would_recommend': forms.CheckboxInput(attrs={
+                'class': 'w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
+            })
+        }
+
+
+class PackageBookingForm(forms.ModelForm):
+    """Form for booking packages"""
+    
+    class Meta:
+        model = PackageBooking
+        fields = [
+            'lead_traveler_name', 'lead_traveler_email', 'lead_traveler_phone',
+            'number_of_travelers', 'preferred_start_date', 'special_requests'
+        ]
+        widgets = {
+            'lead_traveler_name': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'placeholder': 'Your full name'
+            }),
+            'lead_traveler_email': forms.EmailInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'placeholder': 'your@email.com'
+            }),
+            'lead_traveler_phone': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'placeholder': '+977-9800000000'
+            }),
+            'number_of_travelers': forms.NumberInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'min': 1
+            }),
+            'preferred_start_date': forms.DateInput(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'type': 'date'
+            }),
+            'special_requests': forms.Textarea(attrs={
+                'class': 'mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3',
+                'rows': 4,
+                'placeholder': 'Any dietary requirements, accessibility needs, or special requests...'
+            })
+        }
