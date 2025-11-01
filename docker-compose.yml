@@ -1,14 +1,16 @@
+version: '3.9'
+
 services:
   web:
     build: .
     container_name: heavenknows_web
-    command: gunicorn --bind 0.0.0.0:4000 heavenknows.wsgi:application
+    command: gunicorn --bind 0.0.0.0:4400 heavenknows.wsgi:application
     volumes:
-      - ./app:/app/app
-      - ./db.sqlite3:/app/db.sqlite3
+      - .:/app
       - ./static:/app/static
+      - ./db.sqlite3:/app/db.sqlite3
     expose:
-      - 4000
+      - 4400
     restart: always
 
   nginx:
